@@ -2,53 +2,156 @@ import psycopg2
 
 # Criando Conexão com o banco de Dados
 
-bd = str(input("Deseja Fazer uma Conexão com banco de Dados?(sim/não)"))
-bd = bd.lower()
-if bd == "sim":
-    print("Ok")
-else:
-    print("Ok, saindo...")
-    exit()
+while True:
+    try:
+        host = input('Digite o host: ')
+        user = input('Digite o username: ')
+        password = input('Digite o password: ')
+        database = input('Digite o database: ')
+        port = input('Digite a port: ')
+        conn = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
+        break
+    except:
+        print('Erro na Conexão! os Dados Colocados Não Estão Certos')
+        bd = str(input("Deseja Tentar Novamente?(sim/não) "))
+        bd = bd.lower()
+        if bd == 'sim':
+            print('Ok, digite novamente(verifique se os dados colocados estão certos)')
+        else:
+            print('Ok, saindo...')
+            conn.close()
+            print("A conexão com o banco foi encerrada.")
+            exit()
+            break
 
-host=input('Digite o host: ')
-user=input('Digite o username: ')
-password=input('Digite o password: ')
-database=input('Digite o database: ')
-port=input('Digite a port: ')
+# Fazendo os Trabalhos no Banco de Dados
 
-try:
- conn = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
-except psycopg2.OperationalError:
-    print('erro na conexão, tente novamente(verifique se os dados colocados estão certos)')
-    exit()
+cur = conn.cursor()
 
-print('Conectado com sucesso.')
+print('Qual operação deseja fazer?')
+while True:
+    print('Create, Insert, Select, Update, Delete? (para sair digite "N")')
+    print('Se quiser escrever em SQL digite "SQL"')
+    bd = input('')
+    try:
+        if bd == 'Create' or 'create':
+            print('Digite o nome que deseja para a Tabela')
+            c = input('')
+            print('Agora digite seus Parâmetros e seu tipo(ex: varchar, int...)')
+            p = input('')
+            cur.execute(f'CREATE TABLE {c}({p})')
+            conn.commit()
+    except:
+        print('Tem algo errado')
+        db = str(input('Deseja Tentar Novamente?(S/N)'))
+        db = db.lower()
+        if db == 'sim' or 's':
+            print('Ok, digite os valores novamente')
+        else:
+            break
 
-cursor = conn.cursor()
+    try:
+        if bd == 'Insert' or 'insert':
+            print('Digite o nome da tabela')
+            b = input('')
+            print('Digite seus Parâmetros')
+            p = input('')
+            print('Agora digite os valores para os Parâmetros passados acima: ')
+            print('Escreva as Palavras entre Parênteses')
+            v = input('')
+            cur.execute(f'INSERT INTO {b}({p}) VALUES ({v})')
+            conn.commit()
+    except:
+        print('Tem algo errado')
+        db = str(input('Deseja Tentar Novamente?(S/N)'))
+        db = db.lower()
+        if db == 'sim' or 's':
+            print('Ok, digite os valores novamente')
+        else:
+            break
 
-# Criando o SQL(digite em SQL)
+    try:
+        if bd == 'Select' or 'select':
+            print("Digite o nome da Tabela")
+            res = input('')
+            cur.execute(f'SELECT * FROM {res}')
+            resultado = cur.fetchall()
+            print(resultado)
+    except:
+        print('Tem algo errado')
+        db = str(input('Deseja Tentar Novamente?(S/N)'))
+        db = db.lower()
+        if db == 'sim' or 's':
+            print('Ok, digite os valores novamente')
+        else:
+            break
 
+    try:
+        if bd == 'Update' or 'update':
+            print('Digite em SQL o Update que deseja fazer: ')
+            b = input('')
+            cur.execute(b)
+            conn.commit()
+    except:
+        print('Tem algo errado')
+        db = str(input('Deseja Tentar Novamente?(S/N)'))
+        db = db.lower()
+        if db == 'sim' or 's':
+            print('Ok, digite novamente(verifique se o SQL certo)')
+        else:
+            break
 
-def sql_criar():
-    print("digite seu Código SQL Novamente: ")
-    conn
-    sql_tentativa = input()
-    cursor.execute(sql_tentativa)
-    conn.commit()
-    print(cursor.statusmessage)
+    try:
+        if bd == 'Delete' or 'delete':
+            print('Digite em SQL o que deseja Deletar')
+            print('Para Deletar Tabelas use o Comando "DROP TABLE + O nome da Tabela que Deseja Deletar"')
+            d = input('')
+            cur.execute(d)
+            conn.commit()
+    except:
+        print('Tem algo errado')
+        db = str(input('Deseja Tentar Novamente?(S/N)'))
+        db = db.lower()
+        if db == 'sim' or 's':
+            print('Ok, digite novamente(verifique se o SQL certo)')
+        else:
+            break
 
+    try:
+        if bd == 'SQL' or 'sql':
+            print('digite o SQL')
+            s = input('')
+            cur.execute(s)
+            conn.commit()
+    except psycopg2.errors.DuplicateTable:
+        print('Opa Tupla já feita')
+        db = str(input('Deseja Criar outra?(S/N)'))
+        db = db.lower()
+        if db == 'sim' or 's':
+            print('Ok, digite o SQL')
+        else:
+            break
+    except:
+        print('Algo que você escreveu está errado, Tente Novamente')
+        db = str(input('Deseja Tentar Novamente?(S/N)'))
+        db = db.lower()
+        if db == 'sim' or 's':
+            print('Ok, digite novamente(verifique se o SQL está certo)')
+        else:
+            break
 
-try:
- print("digite seu Código SQL: ")
- sql = input()
- data = cursor.execute(sql)
-except psycopg2.errors.SyntaxError:
-    print("algo que você está errado, tente novamente")
-    conn.commit()
-    sql_criar()
-
-
-# Fechando Conexão
-
-
-conn.close()
+    if bd == 'N' or 'n':
+        print('ok, saindo...')
+        break
+    else:
+        print('Operação Feita com Sucesso!')
+        print('Deseja fazer outra operação?(S/N)')
+        o = input('')
+        o = o.lower()
+        if o == 'sim' or 's':
+            continue
+        else:
+            print('Ok, Saindo...')
+            conn.close()
+            print("A conexão com o Banco foi Encerrada.")
+            break
