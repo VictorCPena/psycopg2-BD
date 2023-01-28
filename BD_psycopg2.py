@@ -4,11 +4,11 @@ import psycopg2
 
 while True:
     try:
-        host = input('Digite o host: ')
-        user = input('Digite o username: ')
-        password = input('Digite o password: ')
-        database = input('Digite o database: ')
-        port = input('Digite a port: ')
+        host = input('Digite o Host: ')
+        user = input('Digite o Username: ')
+        password = input('Digite o Password: ')
+        database = input('Digite o Database: ')
+        port = input('Digite a Port: ')
         conn = psycopg2.connect(host=host, user=user, password=password, database=database, port=port)
         break
     except:
